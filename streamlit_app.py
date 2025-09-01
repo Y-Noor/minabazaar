@@ -182,7 +182,7 @@ try:
             )
         
         # Add a checkbox to toggle visibility of 'done' payments
-        show_done_payments = st.checkbox('Show "payment done" items', value=True)
+        # show_done_payments = st.checkbox('Show "payment done" items', value=True)
         
         # Validate that the start row is not greater than the end row
         if start_row > end_row:
