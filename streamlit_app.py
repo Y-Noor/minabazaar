@@ -15,6 +15,9 @@ table {
 </style>
 """, unsafe_allow_html=True)
 
+# Use the relative path to the CSV file in the same repository
+csv_file_path = "Mina Bazar orders(Sheet1).csv"
+
 def process_and_display_tables(df, start_row, end_row, column_headers, show_done_payments):
     """
     Processes the DataFrame for a given row range and displays a table
@@ -105,7 +108,6 @@ Send proof of payment to 54591307
             display_header = original_header
             if original_header == 'ORDER WILL COLLECT  TAKE AWAY point':
                 display_header = 'Order will be collected at take away point'
-            # CORRECTED: This line now looks for two spaces
             elif original_header == 'TIME OF ORDER  WILL COLLECTED':
                 display_header = 'TIME AT WHICH ORDER WILL COLLECTED'
             elif original_header == 'ORDER LIST CONNFIMED WITH CLIENT':
@@ -151,48 +153,16 @@ Wassalam
 
 # Main app logic
 st.title("CSV Data Viewer")
-st.markdown("Upload a CSV file and select a row range to view the data in individual tables.")
+st.markdown("This app displays data from a CSV hosted on GitHub.")
 
-# File uploader widget
-uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
-
-if uploaded_file is not None:
-    try:
-        # To read the file as a string stream
-        string_io = io.StringIO(uploaded_file.getvalue().decode("utf-8"))
-        
-        # Read the header row separately
-        header_df = pd.read_csv(string_io, nrows=1)
-        column_headers = list(header_df.columns)
-        
-        # Reset the stream to the beginning to read the data
-        string_io.seek(0)
-        
-        # Read the rest of the file, skipping the header row
-        df = pd.read_csv(string_io, skiprows=1, header=None, names=column_headers)
-        
-    except UnicodeDecodeError:
-        # Handle a potential encoding error
-        string_io = io.StringIO(uploaded_file.getvalue().decode("latin1"))
-        
-        # Read the header row separately
-        header_df = pd.read_csv(string_io, nrows=1, encoding='latin1')
-        column_headers = list(header_df.columns)
-        
-        # Reset the stream
-        string_io.seek(0)
-        
-        # Read the rest of the file, skipping the header
-        df = pd.read_csv(string_io, skiprows=1, header=None, names=column_headers, encoding='latin1')
-        
-    except Exception as e:
-        st.error(f"An error occurred while reading the file: {e}")
-        st.stop()
-
+# Read the CSV directly from the local path
+try:
+    df = pd.read_csv(csv_file_path)
+    column_headers = list(df.columns)
     num_rows = df.shape[0]
 
     if num_rows > 0:
-        st.success("File uploaded and read successfully!")
+        st.success("File read directly from GitHub successfully!")
 
         # Number inputs for start and end rows
         col1, col2 = st.columns(2)
@@ -223,4 +193,7 @@ if uploaded_file is not None:
             process_and_display_tables(df, start_row, end_row, column_headers, show_done_payments)
     
     else:
-        st.warning("The uploaded CSV file is empty.")
+        st.warning("The CSV file is empty.")
+
+except Exception as e:
+    st.error(f"An error occurred while trying to read the local file: {e}")
