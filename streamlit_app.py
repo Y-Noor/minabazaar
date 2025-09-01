@@ -15,7 +15,7 @@ table {
 </style>
 """, unsafe_allow_html=True)
 
-def process_and_display_tables(df, start_row, end_row, column_headers):
+def process_and_display_tables(df, start_row, end_row, column_headers, show_done_payments):
     """
     Processes the DataFrame for a given row range and displays a table
     for each row containing only non-blank values.
@@ -23,13 +23,21 @@ def process_and_display_tables(df, start_row, end_row, column_headers):
     # Iterate through each row in the selected range.
     # The start_row is 1-based, so we adjust for the 0-based index.
     for index, row in df.iloc[start_row-2:end_row-1].iterrows():
+        
+        # Check for 'payment done' in the entire row before processing
+        if not show_done_payments:
+            # Convert the entire row to a string for case-insensitive search
+            row_str = row.astype(str).str.strip().str.lower()
+            if 'done' in row_str.values:
+                continue # Skip this entire row and do not display a table for it
+
         # Assume the first column contains the person's name.
         person_name = row.iloc[0]
         if not isinstance(person_name, str) or pd.isna(person_name):
             person_name = f"Row {index + 2}" # +2 because index is 0-based and we skipped the header
 
-        # Use markdown to create a centered heading for the person's name
-        st.markdown(f"<h3 style='text-align: center;'>--- {person_name} ---</h3>", unsafe_allow_html=True)
+        # Use markdown to create a centered heading for the person's name, with the row number
+        st.markdown(f"<h3 style='text-align: center;'>--- Row {index + 2}: {person_name} ---</h3>", unsafe_allow_html=True)
 
         # Create a list to store the data for the new DataFrame
         data_rows = []
@@ -48,14 +56,16 @@ def process_and_display_tables(df, start_row, end_row, column_headers):
         # This guarantees that the 'Column' and 'Value' arrays will have the same length.
         filtered_data = pd.DataFrame(data_rows)
         
-        # Convert the DataFrame to an HTML table string without the index
-        html_table = filtered_data.to_html(index=False)
-        
-        # Add inline styling to the <th> tags to center the headings
-        html_table = html_table.replace("<th>", "<th style='text-align: center;'>")
-        
-        # Display the HTML table using st.markdown
-        st.markdown(html_table, unsafe_allow_html=True)
+        # If the filtered data is not empty, display the table
+        if not filtered_data.empty:
+            # Convert the DataFrame to an HTML table string without the index
+            html_table = filtered_data.to_html(index=False)
+            
+            # Add inline styling to the <th> tags to center the headings
+            html_table = html_table.replace("<th>", "<th style='text-align: center;'>")
+            
+            # Display the HTML table using st.markdown
+            st.markdown(html_table, unsafe_allow_html=True)
 
 st.title("CSV Data Viewer")
 st.markdown("Upload a CSV file and select a row range to view the data in individual tables.")
@@ -118,13 +128,16 @@ if uploaded_file is not None:
                 value=min(num_rows + 1, 11)
             )
         
+        # Add a checkbox to toggle visibility of 'done' payments
+        show_done_payments = st.checkbox('Show items with "payment done"', value=True)
+        
         # Validate that the start row is not greater than the end row
         if start_row > end_row:
             st.error("Error: The start row cannot be greater than the end row.")
         else:
             st.write(f"Displaying rows from {start_row} to {end_row}.")
             # Display the processed tables
-            process_and_display_tables(df, start_row, end_row, column_headers)
+            process_and_display_tables(df, start_row, end_row, column_headers, show_done_payments)
 
     else:
         st.warning("The uploaded CSV file is empty.")
