@@ -18,7 +18,7 @@ table {
 # Use the relative path to the CSV file in the same repository
 csv_file_path = "Mina Bazar orders(Sheet1).csv"
 
-def process_and_display_tables(df, start_row, end_row, column_headers, show_done_payments):
+def process_and_display_tables(df, start_row, end_row, column_headers):
     """
     Processes the DataFrame for a given row range and displays a table
     for each row containing only non-blank values.
@@ -30,11 +30,11 @@ def process_and_display_tables(df, start_row, end_row, column_headers, show_done
     # The start_row is 1-based, so we adjust for the 0-based index.
     for index, row in df.iloc[start_row-2:end_row-1].iterrows():
         # Check for 'payment done' in the entire row before processing
-        if not show_done_payments:
-            # Convert the entire row to a string for case-insensitive search
-            row_str = row.astype(str).str.strip().str.lower()
-            if 'done' in row_str.values:
-                continue # Skip this entire row and do not display a table for it
+        # if not show_done_payments:
+        #     # Convert the entire row to a string for case-insensitive search
+        #     row_str = row.astype(str).str.strip().str.lower()
+        #     if 'done' in row_str.values:
+        #         continue # Skip this entire row and do not display a table for it
         
         # Check for 'Contact by' blank values
         contact_by_col_index = -1
@@ -190,7 +190,7 @@ try:
         else:
             st.write(f"Displaying rows from {start_row} to {end_row}.")
             # Display the processed tables
-            process_and_display_tables(df, start_row, end_row, column_headers, show_done_payments)
+            process_and_display_tables(df, start_row, end_row, column_headers)
     
     else:
         st.warning("The CSV file is empty.")
