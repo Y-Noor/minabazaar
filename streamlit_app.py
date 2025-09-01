@@ -93,7 +93,7 @@ For the payment of your order:
 MCB Account Number for Payment: 000 452 303 990\n
 Send proof of payment to 54591307
 """
-        
+          
         # Iterate over the row data and column headers together
         for i, value in enumerate(row):
             # Skip the first column, which contains the person's name
