@@ -69,12 +69,10 @@ def process_and_display_tables(df, start_row, end_row, column_headers, show_done
         takeaway_col_index = -1
         payment_col_index = -1
         try:
-            # CORRECTED: Changed 'ORDER WILL COLLECT TAKE AWAY point' to 'ORDER WILL COLLECT  TAKE AWAY point'
             takeaway_col_index = column_headers.index('ORDER WILL COLLECT  TAKE AWAY point')
         except ValueError:
             pass
         try:
-            # CORRECTED: Changed 'Payment Status' to 'payment' based on user's CSV
             payment_col_index = column_headers.index('payment')
         except ValueError:
             pass
@@ -90,10 +88,10 @@ def process_and_display_tables(df, start_row, end_row, column_headers, show_done
         if payment_col_index != -1 and (pd.isna(row.iloc[payment_col_index]) or str(row.iloc[payment_col_index]).strip().lower() != 'done'):
             var2 = """
 For the payment of your order:
-MCB Account Number for Payment: 000 452 303 990\n
+MCB Account Number for Payment: 000 452 303 990
 Send proof of payment to 54591307
 """
-          
+        
         # Iterate over the row data and column headers together
         for i, value in enumerate(row):
             # Skip the first column, which contains the person's name
@@ -107,8 +105,9 @@ Send proof of payment to 54591307
             display_header = original_header
             if original_header == 'ORDER WILL COLLECT  TAKE AWAY point':
                 display_header = 'Order will be collected at take away point'
-            elif original_header == 'TIME OF ORDER WILL COLLECTED':
-                display_header = 'TIME AT WHICH ORDER WILL BE COLLECTED'
+            # CORRECTED: This line now looks for two spaces
+            elif original_header == 'TIME OF ORDER  WILL COLLECTED':
+                display_header = 'TIME AT WHICH ORDER WILL COLLECTED'
             elif original_header == 'ORDER LIST CONNFIMED WITH CLIENT':
                 continue # Skip this column entirely
 
@@ -144,7 +143,7 @@ Please confirm:
 
 Please respond to this message to confirm your order.
 
-Jazakumullah \n
+Jazakumullah 
 Wassalam
 """)
         else:
